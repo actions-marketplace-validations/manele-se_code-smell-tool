@@ -2,6 +2,8 @@ from clang.cindex import *
 import os
 import sys
 
+# TODO: Add to CI
+
 # https://stackoverflow.com/questions/26000876/how-to-solve-the-loading-error-of-clangs-python-binding
 # https://github.com/llvm-mirror/clang/tree/master/bindings/python
 if os.name == 'nt':
