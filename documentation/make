@@ -1,0 +1,6 @@
+#!/bin/sh
+
+dot -Tpng uml.dot -o uml.png
+
+# https://lornajane.net/posts/2011/uml-diagrams-with-graphviz
+# https://www.graphviz.org/pdf/dotguide.pdf
