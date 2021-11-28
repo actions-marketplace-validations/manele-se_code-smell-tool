@@ -2,8 +2,9 @@ from clang.cindex import *
 import os
 import sys
 
-NON_CODE_DEPTH = 6
-NON_CODE_SIZE = 7
+MIN_CODE_DEPTH = 5
+MIN_CODE_SIZE = 7
+verbose = False
 
 # TODO: Add to CI
 
@@ -66,19 +67,25 @@ class CommentedCodeScanner(TokenScanner):
 
         # Parse the code using the Clang parser
         index = Index.create()
-        syntax_tree = index.parse('tmp.cpp', unsaved_files=[('tmp.cpp', code_in_func)], options=0)
+        syntax_tree = index.parse('tmp.cpp', unsaved_files=[('tmp.cpp', code_in_func)], options=0x200)
 
         # Walk the syntax tree, measure the size and depth of the tree
         self.tree_size = 0
         self.tree_depth = 0
         self.current_depth = 0
         self.__recurse_code(syntax_tree.cursor)
+        if verbose:
+            indent = ' ' * (self.current_depth * 2)
+            print(f'depth: {self.tree_depth}, size: {self.tree_size}')
 
-        # Non-code produces a tree of depth <= 6 and size <= 7
+        # Non-code mostly produces a tree of depth < 5 and size < 7
         # So anything larger than that could be valid code
-        return self.tree_depth > NON_CODE_DEPTH and self.tree_size > NON_CODE_SIZE
+        return self.tree_depth >= MIN_CODE_DEPTH and self.tree_size >= MIN_CODE_SIZE
     
     def __recurse_code(self, cursor: Cursor):
+        if verbose:
+            indent = ' ' * (self.current_depth * 2)
+            print(f'{indent}{cursor.kind} {cursor.spelling}')
         # Increase the total size
         self.tree_size = self.tree_size + 1
 
@@ -132,6 +139,9 @@ class DirectoryScanner:
 ds = DirectoryScanner()
 # For each directory name passed as an argument, scan that directory
 for dir in sys.argv[1:]:
+    if dir == "-v" or dir == "--verbose":
+        verbose = True
+        continue
     print(f'Scanning {dir}...')
     report.clear()
     ds.scan(dir)
