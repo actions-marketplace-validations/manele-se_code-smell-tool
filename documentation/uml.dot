@@ -9,10 +9,6 @@ digraph UML {
     label="{FileScanner|\n|+ scan(filename : string)\l}"
   ];
 
-  base_scan [
-    label="{\<\<abstract\>\>\nBaseScanner|\n|\n}"
-  ];
-
   token_scan [
     label="{\<\<abstract\>\>\nTokenScanner|\n|+ visit(token : Token)}"
   ];
@@ -21,33 +17,12 @@ digraph UML {
     label="{CommentedCodeScanner|+ code_comments : list[Token]\l|- is_code(comment : string) : bool\l+ visit(token : Token)\l}"
   ]
 
-  syntax_scan [
-    label="{\<\<abstract\>\>\nSyntaxScanner|\n|+ visit(node : Node)\l+ enter(node : Node)\l+ leave(node : Node)\l}"
-  ];
-
-  complexity_scan [
-    label="{LongFunctionScanner|+ function_name : string\l+ node_count : int\l|+ visit(node : Node)\l}"
-  ];
-
-  repeat_scan [
-    label="{RepeatedCodeScanner|+ repetitions : list[tuple[Node, Node]]\l|+ visit(node : Node)\l}"
-  ];
-
   smell [
     label="{Smell|+ filename: string\l+ line: int\l+ column: int\l+ description: string\l|\n}"
   ]
 
-  report [
-    label="{Report|+ smells: list[Smell]\l|\n}"
-  ]
-
   dir_scan -> file_scan [arrowtail="none",dir=back];
-  file_scan -> base_scan [arrowtail="none",dir=back];
-  base_scan -> token_scan [arrowtail="empty",dir=back];
-  base_scan -> syntax_scan [arrowtail="empty",dir=back];
+  file_scan -> token_scan [arrowtail="empty",dir=back];
   token_scan -> comments_scan [arrowtail="empty",dir=back];
-  syntax_scan -> complexity_scan [arrowtail="empty",dir=back];
-  syntax_scan -> repeat_scan [arrowtail="empty",dir=back];
-  report -> smell [arrowtail="none",dir=back];
 
 }

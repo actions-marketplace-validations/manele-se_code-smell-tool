@@ -2,6 +2,9 @@ from clang.cindex import *
 import os
 import sys
 
+NON_CODE_DEPTH = 6
+NON_CODE_SIZE = 7
+
 # TODO: Add to CI
 
 # https://stackoverflow.com/questions/26000876/how-to-solve-the-loading-error-of-clangs-python-binding
@@ -21,12 +24,20 @@ class Smell:
         self.filename = str(location.file)
         self.line = location.line
         self.column = location.column
+    
+    def __str__(self):
+        return f'{self.description}: {self.filename}, line {self.line}, column {self.column}'
+    
+    def full_description(self, root_dir: str):
+        filename = os.path.relpath(self.filename, root_dir)
+        return f'{self.description}: {filename}, line {self.line}, column {self.column}'
 
 # List of Smell objects
 report: list = []
 
 # Base class for all token-based code smell detectors
 class TokenScanner:
+    # An implementation of the Visitor pattern
     def visit(self, token: Token):
         print(token.kind.name)
 
@@ -46,21 +57,16 @@ class CommentedCodeScanner(TokenScanner):
             
             # Check if the comment contains code
             if self.__is_code(comment):
-                report.append(Smell('Commented code', token.location))
+                # report.append(Smell(f'Commented code (tree_size={self.tree_size}, tree_depth={self.tree_depth}', token.location))
+                report.append(Smell(f'Commented code', token.location))
     
     def __is_code(self, code: str):
-        # First naive attempt:
-        # return ('(' in code and ')' in code) or \
-        #        ('{' in code and '}' in code) or \
-        #        ';' in code or \
-        #        '->' in code
-
         # Wrap the code in a function so the parser can work
         code_in_func = 'void f() { ' + code + ' ; }'
 
         # Parse the code using the Clang parser
         index = Index.create()
-        syntax_tree = index.parse('tmp.cpp', args=['c++'], unsaved_files=[('tmp.cpp', code_in_func)], options=0)
+        syntax_tree = index.parse('tmp.cpp', unsaved_files=[('tmp.cpp', code_in_func)], options=0)
 
         # Walk the syntax tree, measure the size and depth of the tree
         self.tree_size = 0
@@ -68,9 +74,9 @@ class CommentedCodeScanner(TokenScanner):
         self.current_depth = 0
         self.__recurse_code(syntax_tree.cursor)
 
-        # Even non-code produces a tree of depth 2 and size 3
+        # Non-code produces a tree of depth <= 6 and size <= 7
         # So anything larger than that could be valid code
-        return self.tree_depth > 2 or self.tree_size > 3
+        return self.tree_depth > NON_CODE_DEPTH and self.tree_size > NON_CODE_SIZE
     
     def __recurse_code(self, cursor: Cursor):
         # Increase the total size
@@ -91,18 +97,27 @@ scanner_classes: list = [CommentedCodeScanner]
 
 class FileScanner:
     def scan(self, file_name: str):
+        # Get the full path for this filename
         file_name = os.path.realpath(file_name)
+
+        # For every smell detection class, instantiate the class
         scanners = [scanner_class() for scanner_class in scanner_classes]
+
+        # Tokenize the code using Clang tokenixer
         index = Index.create()
-        translation_unit = index.parse(file_name, args=['-x', 'c++'])
+
+        # Start reading this file
+        translation_unit = index.parse(file_name)
+
+        # Use the tokenizer to loop over all tokens
         for token in translation_unit.cursor.get_tokens():
+            # For each token, let each scanner look at the token
             for scanner in scanners:
                 scanner.visit(token)
     
 class DirectoryScanner:
-    fs = FileScanner()
-
     def scan(self, dir_name: str):
+        fs = FileScanner()
         # Recursively walk through all directories and files in the dir
         for dir, subdirs, filenames in os.walk(dir_name):
             # Look at each file in each sub-directory
@@ -112,16 +127,17 @@ class DirectoryScanner:
                 if (file_extension in ['.c', '.cpp', '.cxx', '.cc', '.c++']):
                     full_filename = os.path.join(dir, filename)
                     # Scan this file
-                    self.fs.scan(full_filename)
-
-        # Print the list of smells
-        for smell in report:
-            filename = os.path.relpath(smell.filename, dir_name)
-            print(f'{smell.description}: {filename}, line {smell.line}, column {smell.column}')
-
+                    fs.scan(full_filename)
 
 ds = DirectoryScanner()
-ds.scan(sys.argv[1])
+# For each directory name passed as an argument, scan that directory
+for dir in sys.argv[1:]:
+    print(f'Scanning {dir}...')
+    report.clear()
+    ds.scan(dir)
+    # Print the list of smells
+    for smell in report:
+        print(smell.full_description(dir))
 
 # https://clang.llvm.org/doxygen/group__CINDEX__LEX.html
 # https://coderedirect.com/questions/611429/using-libclang-to-parse-in-c-in-python
