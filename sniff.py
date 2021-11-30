@@ -44,6 +44,14 @@ class TokenScanner:
 
 # Detector for Commented Code
 
+# Weights given to different types of evidence
+WORD_WEIGHT = 3.0
+HARD_WEIGHT = 2.0
+SOFT_WEIGHT = 1.0
+NEGA_WEIGHT = -5.0
+
+# This value, and the weights above, can be changed if needed
+MIN_RATIO = 0.21
 
 class CommentedCodeScanner(TokenScanner):
     def visit(self, token: Token):
@@ -63,66 +71,22 @@ class CommentedCodeScanner(TokenScanner):
                 report.append(Smell('Commented code', token.location))
 
     def is_code(self, code: str):
-        return False
+        code = re.sub(r'\s+', ' ', code).strip()
 
-WORD_WEIGHT = 3.0
-HARD_WEIGHT = 2.0
-SOFT_WEIGHT = 1.0
-MIN_RATIO = 0.21
-
-class StatisticCommentedCodeScanner(CommentedCodeScanner):
-    def is_code(self, code: str):
         word_evidence = len(re.findall(r'\b((::)|(void)|(for)|(while)|(if)|(int)|(double)|(bool)|(std)|(return))\b', code))
         hard_evidence = len(re.findall(r'[;{}:]', code))
         soft_evidence = len(re.findall(r'[-+,*/%<>()".=]', code))
+        nega_evidence = len(re.findall(f'(----)', code))
 
         ratio = (word_evidence * WORD_WEIGHT +
                  hard_evidence * HARD_WEIGHT +
-                 soft_evidence * SOFT_WEIGHT) / len(code)
+                 soft_evidence * SOFT_WEIGHT + 
+                 nega_evidence * NEGA_WEIGHT) / len(code)
 
         return ratio >= MIN_RATIO
 
-MIN_CODE_DEPTH = 4
-MIN_CODE_SIZE = 6
-
-class ClangParserCommentedCodeScanner(CommentedCodeScanner):
-    def is_code(self, code: str):
-        # Wrap the code in a function so the parser can work
-        code_in_func = 'void f() { ' + code + ' ; }'
-
-        # Parse the code using the Clang parser
-        index = Index.create()
-        syntax_tree = index.parse('tmp.cpp', unsaved_files=[
-                                  ('tmp.cpp', code_in_func)], options=0x200)
-
-        # Walk the syntax tree, measure the size and depth of the tree
-        self.tree_size = 0
-        self.tree_depth = 0
-        self.current_depth = 0
-        self.__recurse_code(syntax_tree.cursor)
-
-        # Non-code mostly produces a tree of depth < 5 and size < 7
-        # So anything larger than that could be valid code
-        return self.tree_depth >= MIN_CODE_DEPTH and self.tree_size >= MIN_CODE_SIZE
-
-    def __recurse_code(self, cursor: Cursor):
-        # Increase the total size
-        self.tree_size = self.tree_size + 1
-
-        # Keep track of the maximum depth
-        if self.current_depth > self.tree_depth:
-            self.tree_depth = self.current_depth
-
-        # Increase current depth, recursively loop over all children, and decrease depth again
-        self.current_depth = self.current_depth + 1
-        for child in cursor.get_children():
-            self.__recurse_code(child)
-        self.current_depth = self.current_depth - 1
-
-
 # In the future, we can put more code smell detection classes here
-scanner_classes: list = [StatisticCommentedCodeScanner]
-
+scanner_classes: list = [CommentedCodeScanner]
 
 class FileScanner:
     def scan_file(self, file_name: str):
