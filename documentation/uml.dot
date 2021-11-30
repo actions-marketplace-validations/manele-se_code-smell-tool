@@ -14,7 +14,7 @@ digraph UML {
   ];
 
   comments_scan [
-    label="{CommentedCodeScanner|+ code_comments : list[Token]\l|- is_code(comment : string) : bool\l+ visit(token : Token)\l}"
+    label="{CommentedCodeScanner|\n|- is_code(comment : string) : bool\l+ visit(token : Token)\l}"
   ]
 
   smell [

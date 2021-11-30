@@ -30,7 +30,9 @@ void main(int argc, char **argv) {
   ANY = 1,
   ALL = 2,
   ONE = 3,
-  """
+  """,
+            "std::cout << ' ';",
+            "this->comment.is.also(\"one single token\");"
         ]
         for tp in true_positives:
             self.assertTrue(self.scanner.is_code(tp), tp)
@@ -41,12 +43,9 @@ void main(int argc, char **argv) {
             "This is not code (even though is has parenthesis and a semicolon);",
             "TODO: Fix this",
             """
-            key | value
-            -----------
-            X1  |   128
-            X2  |    32
-            X3  |     2
-            """
+   This entire comment
+   is just one
+   big token!"""
         ]
         for tn in true_negatives:
             self.assertFalse(self.scanner.is_code(tn), tn)

@@ -48,7 +48,6 @@ class TokenScanner:
 WORD_WEIGHT = 3.0
 HARD_WEIGHT = 2.0
 SOFT_WEIGHT = 1.0
-NEGA_WEIGHT = -5.0
 
 # This value, and the weights above, can be changed if needed
 MIN_RATIO = 0.21
@@ -76,12 +75,10 @@ class CommentedCodeScanner(TokenScanner):
         word_evidence = len(re.findall(r'\b((::)|(void)|(for)|(while)|(if)|(int)|(double)|(bool)|(std)|(return))\b', code))
         hard_evidence = len(re.findall(r'[;{}:]', code))
         soft_evidence = len(re.findall(r'[-+,*/%<>()".=]', code))
-        nega_evidence = len(re.findall(f'(----)', code))
 
         ratio = (word_evidence * WORD_WEIGHT +
                  hard_evidence * HARD_WEIGHT +
-                 soft_evidence * SOFT_WEIGHT + 
-                 nega_evidence * NEGA_WEIGHT) / len(code)
+                 soft_evidence * SOFT_WEIGHT) / len(code)
 
         return ratio >= MIN_RATIO
 
