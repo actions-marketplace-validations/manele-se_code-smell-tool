@@ -1,0 +1,41 @@
+digraph "x = y + z * 10;" {
+    node [shape=record];
+    # labelloc="t";
+    # label="Simplified syntax tree for statement\nx = y + z * 10;";
+
+    assign [
+        label="{BINARY_OPERATOR|=}"
+    ];
+
+    x [
+        label="{DECL_REF_EXPR|x}"
+    ];
+
+    add [
+        label="{BINARY_OPERATOR|+}"
+    ];
+
+    y [
+        label="{DECL_REF_EXPR|y}"
+    ];
+
+    mult [
+        label="{BINARY_OPERATOR|*}"
+    ];
+
+    z [
+        label="{DECL_REF_EXPR|z}"
+    ];
+
+    ten [
+        label="{INTEGER_LITERAL|10}"
+    ];
+
+    assign -> x [arrowtail="none"];
+    assign -> add [arrowtail="none"];
+    add -> y [arrowtail="none"];
+    add -> mult [arrowtail="none"];
+    mult -> z [arrowtail="none"];
+    mult -> ten [arrowtail="none"];
+
+}

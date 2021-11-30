@@ -1,9 +1,8 @@
 from clang.cindex import *
 import os
 import sys
+import re
 
-MIN_CODE_DEPTH = 3
-MIN_CODE_SIZE = 5
 verbose = False
 
 
@@ -55,15 +54,39 @@ class CommentedCodeScanner(TokenScanner):
 
             # Remove the // or the /* */
             if comment[0:2] == '//':
-                comment = comment[2:].strip().lower()
+                comment = comment[2:].strip()
             elif comment[0:2] == '/*':
-                comment = comment[2:-2].strip().lower()
+                comment = comment[2:-2].strip()
 
             # Check if the comment contains code
-            if self.__is_code(comment):
-                report.append(Smell(f'Commented code', token.location))
+            if self.is_code(comment):
+                report.append(Smell('Commented code', token.location))
 
-    def __is_code(self, code: str):
+    def is_code(self, code: str):
+        return False
+
+WORD_WEIGHT = 3.0
+HARD_WEIGHT = 2.0
+SOFT_WEIGHT = 1.0
+MIN_RATIO = 0.21
+
+class StatisticCommentedCodeScanner(CommentedCodeScanner):
+    def is_code(self, code: str):
+        word_evidence = len(re.findall(r'\b((::)|(void)|(for)|(while)|(if)|(int)|(double)|(bool)|(std)|(return))\b', code))
+        hard_evidence = len(re.findall(r'[;{}:]', code))
+        soft_evidence = len(re.findall(r'[-+,*/%<>()".=]', code))
+
+        ratio = (word_evidence * WORD_WEIGHT +
+                 hard_evidence * HARD_WEIGHT +
+                 soft_evidence * SOFT_WEIGHT) / len(code)
+
+        return ratio >= MIN_RATIO
+
+MIN_CODE_DEPTH = 4
+MIN_CODE_SIZE = 6
+
+class ClangParserCommentedCodeScanner(CommentedCodeScanner):
+    def is_code(self, code: str):
         # Wrap the code in a function so the parser can work
         code_in_func = 'void f() { ' + code + ' ; }'
 
@@ -98,7 +121,7 @@ class CommentedCodeScanner(TokenScanner):
 
 
 # In the future, we can put more code smell detection classes here
-scanner_classes: list = [CommentedCodeScanner]
+scanner_classes: list = [StatisticCommentedCodeScanner]
 
 
 class FileScanner:
@@ -145,7 +168,7 @@ for dir in sys.argv[1:]:
     ds.scan_dir(dir)
     # Print the list of smells
     for smell in report:
-        print(smell.full_description(dir))
+        print('  ' + smell.full_description(dir))
 
 # https://clang.llvm.org/doxygen/group__CINDEX__LEX.html
 # https://coderedirect.com/questions/611429/using-libclang-to-parse-in-c-in-python

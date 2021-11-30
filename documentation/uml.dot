@@ -22,7 +22,7 @@ digraph UML {
   ]
 
   dir_scan -> file_scan [arrowtail="none",dir=back];
-  file_scan -> token_scan [arrowtail="empty",dir=back];
+  file_scan -> token_scan [arrowtail="none",dir=back];
   token_scan -> comments_scan [arrowtail="empty",dir=back];
 
 }
