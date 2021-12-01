@@ -3,9 +3,6 @@ import os
 import sys
 import re
 
-verbose = False
-
-
 # https://stackoverflow.com/questions/26000876/how-to-solve-the-loading-error-of-clangs-python-binding
 # https://github.com/llvm-mirror/clang/tree/master/bindings/python
 if os.name == 'nt':
@@ -44,6 +41,7 @@ class TokenScanner:
 
 # Detector for Commented Code
 
+
 # Weights given to different types of evidence
 WORD_WEIGHT = 3.0
 HARD_WEIGHT = 2.0
@@ -51,6 +49,7 @@ SOFT_WEIGHT = 1.0
 
 # This value, and the weights above, can be changed if needed
 MIN_RATIO = 0.21
+
 
 class CommentedCodeScanner(TokenScanner):
     def visit(self, token: Token):
@@ -72,7 +71,8 @@ class CommentedCodeScanner(TokenScanner):
     def is_code(self, code: str):
         code = re.sub(r'\s+', ' ', code).strip()
 
-        word_evidence = len(re.findall(r'\b((::)|(void)|(for)|(while)|(if)|(int)|(double)|(bool)|(std)|(return))\b', code))
+        word_evidence = len(re.findall(
+            r'\b((::)|(void)|(for)|(while)|(if)|(int)|(double)|(bool)|(std)|(return))\b', code))
         hard_evidence = len(re.findall(r'[;{}:]', code))
         soft_evidence = len(re.findall(r'[-+,*/%<>()".=]', code))
 
@@ -82,8 +82,10 @@ class CommentedCodeScanner(TokenScanner):
 
         return ratio >= MIN_RATIO
 
+
 # In the future, we can put more code smell detection classes here
 scanner_classes: list = [CommentedCodeScanner]
+
 
 class FileScanner:
     def scan_file(self, file_name: str):
