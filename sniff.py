@@ -5,11 +5,18 @@ import re
 
 verbose = False
 
+def start_clang():
+    try:
+        return Index.create()
+    except:
+        if os.name == 'nt':
+            Config.set_library_file("C:/Program Files (x86)/LLVM/bin/libclang.dll")
+            return Index.create()
+        else:
+            raise 'Could not load libclang'
 
 # https://stackoverflow.com/questions/26000876/how-to-solve-the-loading-error-of-clangs-python-binding
 # https://github.com/llvm-mirror/clang/tree/master/bindings/python
-if os.name == 'nt':
-    Config.set_library_file("C:/Program Files (x86)/LLVM/bin/libclang.dll")
 
 # Information about an identified smell
 
@@ -94,7 +101,7 @@ class FileScanner:
         scanners = [scanner_class() for scanner_class in scanner_classes]
 
         # Tokenize the code using Clang tokenixer
-        index = Index.create()
+        index = start_clang()
 
         # Start reading this file
         translation_unit = index.parse(file_name)
