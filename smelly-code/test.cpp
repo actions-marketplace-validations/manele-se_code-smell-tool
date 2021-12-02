@@ -29,6 +29,8 @@ void main(int argc, char **argv) {
 
 // This is not code (even though is has parenthesis and a semicolon);
 
+// public static func(int x, char **y, double fluff);
+
 // int FrameBuffer::get_freq() noexcept { return frame_buf.get_freq(); }
 
 enum Foo {
