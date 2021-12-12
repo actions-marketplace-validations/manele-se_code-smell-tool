@@ -1,10 +1,11 @@
 import unittest
 from sniff import CommentedCodeScanner
 
+
 class CommentedCodeScannerTests(unittest.TestCase):
     def setUp(self):
         self.scanner = CommentedCodeScanner()
-    
+
     def test_positives(self):
         true_positives = [
             """
@@ -45,31 +46,15 @@ void main(int argc, char **argv) {
             """
    This entire comment
    is just one
-   big token!"""
-        ]
-        for tn in true_negatives:
-            self.assertFalse(self.scanner.is_code(tn), tn)
-
-"""
-void comments() {
-    int x = 10;
-    int a;
-    
-    /*
-    i nt wh ile;
-    cholecystokinin thyroxine
+   big token!""",
+            """
+   i nt wh ile;
     voi d ouble
     i for
     if or
     i f or
     i f o r
-    */
-
-    /*
-    int a
-    /* int b
-    // int c
-    int e
-    */
-}
-"""
+    """
+        ]
+        for tn in true_negatives:
+            self.assertFalse(self.scanner.is_code(tn), tn)
