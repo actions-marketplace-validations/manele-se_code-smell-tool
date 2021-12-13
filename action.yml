@@ -1,6 +1,9 @@
 name: 'Manele Code Smell Scanner'
 description: 'Detects code smells in a C/C++ code base.'
 author: 'Elena Marzi Tornblad'
+branding:
+  icon: code
+  color: green
 input:
   source-location:
     description: 'Root directory of source code'
