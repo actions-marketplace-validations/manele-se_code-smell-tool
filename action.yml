@@ -1,0 +1,16 @@
+name: 'Manele Code Smell Scanner'
+description: 'Detects code smells in a C/C++ code base.'
+input:
+  source-location:
+    description: 'Root directory of source code'
+    required: true
+    default: 'src'
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
+
