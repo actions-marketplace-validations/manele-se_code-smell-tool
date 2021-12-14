@@ -9,6 +9,10 @@ inputs:
     description: 'Root directory of source code'
     required: true
     default: 'src'
+  github-token:
+    description: 'Github Token for automatically posting comments on Pull Requests'
+    required: false
+    default: ''
 runs:
   using: "composite"
   steps:
@@ -32,7 +36,7 @@ runs:
     - uses: actions/github-script@v5
       if: ${{ runner.os != 'Windows' && github.event_name == 'pull_request' }}
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ inputs.github-token }}
         script: |
           github.rest.issues.createComment({
             issue_number: context.issue.number,
@@ -43,7 +47,7 @@ runs:
     - uses: actions/github-script@v5
       if: ${{ runner.os == 'Windows' && github.event_name == 'pull_request' }}
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ inputs.github-token }}
         script: |
           github.rest.issues.createComment({
             issue_number: context.issue.number,
