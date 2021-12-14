@@ -30,14 +30,13 @@ runs:
     - run: pip install libclang
       if: runner.os == 'Windows'
       shell: cmd
-    - run: dir /s ${{ github.action_path }}
-      if: runner.os == 'Windows'
-      shell: cmd
     - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
       if: runner.os == 'Windows'
       shell: cmd
     - run: pip install libclang
+      if: runner.os != 'Windows'
       shell: bash
     - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
+      if: runner.os != 'Windows'
       shell: bash
 
