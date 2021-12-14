@@ -12,18 +12,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    # - name: 'Install Clang (Linux)'
-    #   if: runner.os == 'Linux'
-    #   run: sudo apt-get install clang
-    #   shell: bash
-    # - name: 'Install Clang (macOS)'
-    #   if: runner.os == 'macOS'
-    #   run: brew install clang
-    #   shell: bash
-    # - name: 'Install Clang (Windows)'
-    #   if: runner.os == 'Windows'
-    #   run: choco install clang
-    #   shell: cmd
     - uses: actions/setup-python@v2
       with:
         python-version: '3.9'
@@ -31,12 +19,38 @@ runs:
       if: runner.os == 'Windows'
       shell: cmd
     - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
+      id: main_win
       if: runner.os == 'Windows'
       shell: cmd
     - run: pip install libclang
       if: runner.os != 'Windows'
       shell: bash
     - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
+      id: main_nonwin
       if: runner.os != 'Windows'
       shell: bash
+    - uses: actions/github-script@v5
+      if: ${{ runner.os != 'Windows' && github.event_name == 'pull_request' }}
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: ${{ join(steps.main_nonwin.outputs.*, '\n') }}
+          })
+    - uses: actions/github-script@v5
+      if: ${{ runner.os == 'Windows' && github.event_name == 'pull_request' }}
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: ${{ join(steps.main_win.outputs.*, '\n') }}
+          })
 
+# https://stackoverflow.com/questions/59191913/get-output-of-a-specific-step-in-github-actions
+# https://stackoverflow.com/questions/58066966/commenting-a-pull-request-in-a-github-action
