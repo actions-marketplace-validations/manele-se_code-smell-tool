@@ -34,6 +34,8 @@ runs:
       if: runner.os != 'Windows'
       shell: bash
     - uses: actions/github-script@v5
+      env:
+        COMMENT_BODY: ${{ join(steps.main_nonwin.outputs.*, '\n') }}
       if: ${{ runner.os != 'Windows' && github.event_name == 'pull_request' }}
       with:
         github-token: ${{ inputs.github-token }}
@@ -42,9 +44,11 @@ runs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: ${{ join(steps.main_nonwin.outputs.*, '\n') }}
+            body: process.env.COMMENT_BODY
           })
     - uses: actions/github-script@v5
+      env:
+        COMMENT_BODY: ${{ join(steps.main_win.outputs.*, '\n') }}
       if: ${{ runner.os == 'Windows' && github.event_name == 'pull_request' }}
       with:
         github-token: ${{ inputs.github-token }}
@@ -53,7 +57,7 @@ runs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: "${{ join(steps.main_win.outputs.*, '\n') }}"
+            body: process.env.COMMENT_BODY
           })
 
 # https://stackoverflow.com/questions/59191913/get-output-of-a-specific-step-in-github-actions
