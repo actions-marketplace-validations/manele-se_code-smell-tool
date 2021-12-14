@@ -12,18 +12,18 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: 'Install Clang (Linux)'
-      if: runner.os == 'Linux'
-      run: apt-get install clang
-      shell: bash
-    - name: 'Install Clang (macOS)'
-      if: runner.os == 'macOS'
-      run: brew install clang
-      shell: bash
-    - name: 'Install Clang (Windows)'
-      if: runner.os == 'Windows'
-      run: choco install clang
-      shell: cmd
+    # - name: 'Install Clang (Linux)'
+    #   if: runner.os == 'Linux'
+    #   run: sudo apt-get install clang
+    #   shell: bash
+    # - name: 'Install Clang (macOS)'
+    #   if: runner.os == 'macOS'
+    #   run: brew install clang
+    #   shell: bash
+    # - name: 'Install Clang (Windows)'
+    #   if: runner.os == 'Windows'
+    #   run: choco install clang
+    #   shell: cmd
     - uses: actions/setup-python@v2
       with:
         python-version: '3.9'
