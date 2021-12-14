@@ -4,7 +4,7 @@ author: 'Elena Marzi Tornblad'
 branding:
   icon: code
   color: green
-input:
+inputs:
   source-location:
     description: 'Root directory of source code'
     required: true
@@ -13,28 +13,28 @@ runs:
   using: "composite"
   steps:
     - name: 'Install Clang (Linux)'
-      if: ${{ env.RUNNER_OS == 'Linux' }}
+      if: runner.os == 'Linux'
       run: apt-get install clang
       shell: bash
     - name: 'Install Clang (macOS)'
-      if: ${{ env.RUNNER_OS == 'macOS' }}
+      if: runner.os == 'macOS'
       run: brew install clang
       shell: bash
     - name: 'Install Clang (Windows)'
-      if: ${{ env.RUNNER_OS == 'Windows' }}
+      if: runner.os == 'Windows'
       run: choco install clang
       shell: cmd
     - uses: actions/setup-python@v2
       with:
         python-version: '3.9'
     - run: pip install libclang
-      if: ${{ env.RUNNER_OS == 'Windows' }}
+      if: runner.os == 'Windows'
       shell: cmd
     - run: dir /s ${{ github.action_path }}
-      if: ${{ env.RUNNER_OS == 'Windows' }}
+      if: runner.os == 'Windows'
       shell: cmd
     - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
-      if: ${{ env.RUNNER_OS == 'Windows' }}
+      if: runner.os == 'Windows'
       shell: cmd
     - run: pip install libclang
       shell: bash
