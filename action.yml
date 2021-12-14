@@ -12,30 +12,29 @@ input:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v2
-    - name: 'Select shell'
-      id: select_shell
-      with:
-        cond: ${{ runner.os == 'Windows' }}
-        if_true: 'cmd'
-        if_false: 'bash'
     - name: 'Install Clang (Linux)'
-      if: ${{ runner.os == 'Linux' }}
+      if: ${{ env.RUNNER_OS == 'Linux' }}
       run: apt-get install clang
       shell: bash
     - name: 'Install Clang (macOS)'
-      if: ${{ runner.os == 'macOS' }}
+      if: ${{ env.RUNNER_OS == 'macOS' }}
       run: brew install clang
       shell: bash
     - name: 'Install Clang (Windows)'
-      if: ${{ runner.os == 'Windows' }}
+      if: ${{ env.RUNNER_OS == 'Windows' }}
       run: choco install clang
       shell: cmd
     - uses: actions/setup-python@v2
       with:
         python-version: '3.9'
     - run: pip install libclang
-      shell: ${{ steps.select_shell.outputs.value }}
+      if: ${{ env.RUNNER_OS == 'Windows' }}
+      shell: cmd
     - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
-      shell: ${{ steps.select_shell.outputs.value }}
+      if: ${{ env.RUNNER_OS == 'Windows' }}
+      shell: cmd
+    - run: pip install libclang
+      shell: bash
+    - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
+      shell: bash
 
