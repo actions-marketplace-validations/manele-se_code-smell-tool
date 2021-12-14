@@ -16,15 +16,20 @@ runs:
     - name: 'Install Clang (Linux)'
       if: ${{ env.RUNNER_OS == 'Linux' }}
       run: apt-get install clang
+      shell: bash
     - name: 'Install Clang (macOS)'
       if: ${{ env.RUNNER_OS == 'macOS' }}
       run: brew install clang
+      shell: bash
     - name: 'Install Clang (Windows)'
       if: ${{ env.RUNNER_OS == 'Windows' }}
       run: choco install clang
+      shell: bash
     - uses: actions/setup-python@v2
       with:
         python-version: '3.9'
     - run: pip install libclang
+      shell: bash
     - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
+      shell: bash
 
