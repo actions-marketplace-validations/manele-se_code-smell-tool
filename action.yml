@@ -13,23 +13,29 @@ runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v2
+    - name: 'Select shell'
+      id: select_shell
+      with:
+        cond: ${{ runner.os == 'Windows' }}
+        if_true: 'cmd'
+        if_false: 'bash'
     - name: 'Install Clang (Linux)'
-      if: ${{ env.RUNNER_OS == 'Linux' }}
+      if: ${{ runner.os == 'Linux' }}
       run: apt-get install clang
       shell: bash
     - name: 'Install Clang (macOS)'
-      if: ${{ env.RUNNER_OS == 'macOS' }}
+      if: ${{ runner.os == 'macOS' }}
       run: brew install clang
       shell: bash
     - name: 'Install Clang (Windows)'
-      if: ${{ env.RUNNER_OS == 'Windows' }}
+      if: ${{ runner.os == 'Windows' }}
       run: choco install clang
-      shell: bash
+      shell: cmd
     - uses: actions/setup-python@v2
       with:
         python-version: '3.9'
     - run: pip install libclang
-      shell: bash
+      shell: ${{ steps.select_shell.outputs.value }}
     - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
-      shell: bash
+      shell: ${{ steps.select_shell.outputs.value }}
 
