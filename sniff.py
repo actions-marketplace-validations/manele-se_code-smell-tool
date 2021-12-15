@@ -4,6 +4,15 @@ import sys
 import re
 
 verbose = False
+output_line = 1
+
+def output(text: str):
+    global output_line
+    if os.environ['DO_SET_OUTPUT'] == 'YES':
+        print(f'::set-output name=line-{output_line:05}::{text}')
+        output_line = output_line + 1
+    else:
+        print(text)
 
 def start_clang():
     try:
@@ -47,7 +56,7 @@ report: list = []
 class TokenScanner:
     # An implementation of the Visitor pattern
     def visit(self, token: Token):
-        print(token.kind.name)
+        output(token.kind.name)
 
 # Detector for Commented Code
 
@@ -136,12 +145,12 @@ class DirectoryScanner:
 ds = DirectoryScanner()
 # For each directory name passed as an argument, scan that directory
 for dir in sys.argv[1:]:
-    print(f'Scanning {dir}...')
+    output(f'Scanning {dir}...')
     report.clear()
     ds.scan_dir(dir)
     # Print the list of smells
     for smell in report:
-        print('  ' + smell.full_description(dir))
+        output('  ' + smell.full_description(dir))
 
 # https://clang.llvm.org/doxygen/group__CINDEX__LEX.html
 # https://coderedirect.com/questions/611429/using-libclang-to-parse-in-c-in-python

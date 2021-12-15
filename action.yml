@@ -23,20 +23,15 @@ runs:
       if: runner.os == 'Windows'
       shell: cmd
     - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
+      env:
+        DO_SET_OUTPUT: YES
       id: main_win
       if: runner.os == 'Windows'
       shell: cmd
-    - run: pip install libclang
-      if: runner.os != 'Windows'
-      shell: bash
-    - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
-      id: main_nonwin
-      if: runner.os != 'Windows'
-      shell: bash
     - uses: actions/github-script@v5
       env:
-        COMMENT_BODY: ${{ join(steps.main_nonwin.outputs.*, '\n') }}
-      if: ${{ runner.os != 'Windows' && github.event_name == 'pull_request' }}
+        COMMENT_BODY: ${{ join(steps.main_win.outputs.*, '\n') }}
+      if: ${{ runner.os == 'Windows' && github.event_name == 'pull_request' }}
       with:
         github-token: ${{ inputs.github-token }}
         script: |
@@ -46,10 +41,19 @@ runs:
             repo: context.repo.repo,
             body: process.env.COMMENT_BODY
           })
+    - run: pip install libclang
+      if: runner.os != 'Windows'
+      shell: bash
+    - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
+      env:
+        DO_SET_OUTPUT: YES
+      id: main_nonwin
+      if: runner.os != 'Windows'
+      shell: bash
     - uses: actions/github-script@v5
       env:
-        COMMENT_BODY: ${{ join(steps.main_win.outputs.*, '\n') }}
-      if: ${{ runner.os == 'Windows' && github.event_name == 'pull_request' }}
+        COMMENT_BODY: ${{ join(steps.main_nonwin.outputs.*, '\n') }}
+      if: ${{ runner.os != 'Windows' && github.event_name == 'pull_request' }}
       with:
         github-token: ${{ inputs.github-token }}
         script: |
