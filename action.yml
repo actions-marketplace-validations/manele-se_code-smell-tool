@@ -1,5 +1,5 @@
 name: 'Manele Code Smell Scanner'
-description: 'Detects code smells in a C/C++ code base.'
+description: 'Detects commented-out code in a C/C++ code base.'
 author: 'Elena Marzi Tornblad'
 branding:
   icon: code
@@ -24,7 +24,7 @@ runs:
       shell: cmd
     - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
       env:
-        DO_SET_OUTPUT: YES
+        DO_SET_OUTPUT: "${{ github.event_name == 'pull_request' && 'YES' || 'NO' }}"
       id: main_win
       if: runner.os == 'Windows'
       shell: cmd
@@ -39,14 +39,14 @@ runs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: process.env.COMMENT_BODY
+            body: process.env.COMMENT_BODY.replace('\\n', '\n')
           })
     - run: pip install libclang
       if: runner.os != 'Windows'
       shell: bash
     - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
       env:
-        DO_SET_OUTPUT: YES
+        DO_SET_OUTPUT: "${{ github.event_name == 'pull_request' && 'YES' || 'NO' }}"
       id: main_nonwin
       if: runner.os != 'Windows'
       shell: bash
@@ -61,7 +61,7 @@ runs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: process.env.COMMENT_BODY
+            body: process.env.COMMENT_BODY.replace('\\n', '\n')
           })
 
 # https://stackoverflow.com/questions/59191913/get-output-of-a-specific-step-in-github-actions
