@@ -42,7 +42,7 @@ runs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: process.env.COMMENT_BODY.replace('\\n', '\n')
+            body: process.env.COMMENT_BODY.replace(/\\n/g, '\n')
           })
     - run: pip install libclang
       if: runner.os != 'Windows'
@@ -67,7 +67,7 @@ runs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: process.env.COMMENT_BODY.replace('\\n', '\n')
+            body: process.env.COMMENT_BODY.replace(/\\n/g, '\n')
           })
 
 # https://stackoverflow.com/questions/59191913/get-output-of-a-specific-step-in-github-actions
