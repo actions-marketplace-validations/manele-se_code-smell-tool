@@ -24,9 +24,12 @@ runs:
       shell: cmd
     - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
       env:
-        DO_SET_OUTPUT: "${{ github.event_name == 'pull_request' && 'YES' || 'NO' }}"
+        DO_SET_OUTPUT: YES
       id: main_win
-      if: runner.os == 'Windows'
+      if: ${{ runner.os == 'Windows' && github.event_name == 'pull_request' }}
+      shell: cmd
+    - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
+      if: ${{ runner.os == 'Windows' && github.event_name != 'pull_request' }}
       shell: cmd
     - uses: actions/github-script@v5
       env:
@@ -46,9 +49,12 @@ runs:
       shell: bash
     - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
       env:
-        DO_SET_OUTPUT: "${{ github.event_name == 'pull_request' && 'YES' || 'NO' }}"
+        DO_SET_OUTPUT: YES
       id: main_nonwin
-      if: runner.os != 'Windows'
+      if: ${{ runner.os != 'Windows' && github.event_name == 'pull_request' }}
+      shell: bash
+    - run: python ${{ github.action_path }}/sniff.py ${{ inputs.source-location }}
+      if: ${{ runner.os != 'Windows' && github.event_name != 'pull_request' }}
       shell: bash
     - uses: actions/github-script@v5
       env:
