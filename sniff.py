@@ -8,7 +8,7 @@ output_line = 1
 
 def output(text: str):
     global output_line
-    if os.environ['DO_SET_OUTPUT'] == 'YES':
+    if 'DO_SET_OUTPUT' in os.environ and os.environ['DO_SET_OUTPUT'] == 'YES':
         print(f'::set-output name=line-{output_line:05}::{text}')
         output_line = output_line + 1
     else:
