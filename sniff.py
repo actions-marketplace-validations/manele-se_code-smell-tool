@@ -126,9 +126,8 @@ class CommentedCodeScanner(TokenScanner):
 
         if len(code) == 0:
             return False
-
         word_evidence = len(re.findall(
-            r'\b((::)|(void)|(for)|(while)|(if)|(int)|(double)|(bool)|(std)|(return))\b', code))
+            r'\b((::)|(void)|(for\s*\()|(while\s*\()|(if\s*\()|(int)|(double)|(bool)|(std)|(return))\b', code))
         hard_evidence = len(re.findall(r'[;{}:]', code))
         soft_evidence = len(re.findall(r'[-+,*/%<>()".=]', code))
 

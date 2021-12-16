@@ -40,6 +40,7 @@ void main(int argc, char **argv) {
 
     def test_negatives(self):
         true_negatives = [
+            "for _commit",
             "Not commented code!",
             "This is not code (even though is has parenthesis and a semicolon);",
             "TODO: Fix this",
