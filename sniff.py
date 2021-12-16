@@ -102,6 +102,8 @@ class CommentedCodeScanner(TokenScanner):
         # //////////
         # /********/
         # //--------
+        if len(comment) == 0:
+            return False
         separator_chars = len(re.sub(r'[^/*-]', '', comment))
         separator_ratio = separator_chars * 1.0 / len(comment)
         return separator_ratio > 0.9
