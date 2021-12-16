@@ -88,6 +88,8 @@ class CommentedCodeScanner(TokenScanner):
                 comment = comment[2:].strip()
             elif comment[0:2] == '/*':
                 comment = comment[2:-2].strip()
+            if self.is_line_separator(comment):
+                return
             
             self.buffer = self.buffer + ' ' + comment
             if self.first_token is None:
@@ -95,6 +97,15 @@ class CommentedCodeScanner(TokenScanner):
         else:
             self.check()
     
+    def is_line_separator(self, comment):
+        # Check if this line is probably a line separator, like:
+        # //////////
+        # /********/
+        # //--------
+        separator_chars = len(re.sub(r'[^/*-]', '', comment))
+        separator_ratio = separator_chars * 1.0 / len(comment)
+        return separator_ratio > 0.9
+
     def after_last(self):
         self.check()
     

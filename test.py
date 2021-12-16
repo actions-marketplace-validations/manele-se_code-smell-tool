@@ -43,6 +43,8 @@ void main(int argc, char **argv) {
             "Not commented code!",
             "This is not code (even though is has parenthesis and a semicolon);",
             "TODO: Fix this",
+            "///////////////////////////",
+            "...",
             """
    This entire comment
    is just one
