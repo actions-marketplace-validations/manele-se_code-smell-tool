@@ -57,6 +57,8 @@ class TokenScanner:
     # An implementation of the Visitor pattern
     def visit(self, token: Token):
         output(token.kind.name)
+    def after_last(self):
+        pass
 
 # Detector for Commented Code
 
@@ -67,10 +69,14 @@ HARD_WEIGHT = 2.0
 SOFT_WEIGHT = 1.0
 
 # This value, and the weights above, can be changed if needed
-MIN_RATIO = 0.21
-
+MIN_RATIO = 0.22
+MAX_RATIO = 0.99
 
 class CommentedCodeScanner(TokenScanner):
+    def __init__(self):
+        self.buffer = ''
+        self.first_token = None
+    
     def visit(self, token: Token):
         # We are only interested in COMMENT tokens
         if token.kind == TokenKind.COMMENT:
@@ -82,13 +88,30 @@ class CommentedCodeScanner(TokenScanner):
                 comment = comment[2:].strip()
             elif comment[0:2] == '/*':
                 comment = comment[2:-2].strip()
-
-            # Check if the comment contains code
-            if self.is_code(comment):
-                report.append(Smell('Commented code', token.location))
+            
+            self.buffer = self.buffer + ' ' + comment
+            if self.first_token is None:
+                self.first_token = token
+        else:
+            self.check()
+    
+    def after_last(self):
+        self.check()
+    
+    def check(self):
+        if self.first_token is None:
+            return
+        print(self.buffer)
+        
+        # Check if the comment contains code
+        if self.is_code(self.buffer):
+            report.append(Smell('Commented code', self.first_token.location))
+        self.buffer = ''
+        self.first_token = None
 
     def is_code(self, code: str):
         code = re.sub(r'\s+', ' ', code).strip()
+
         if len(code) == 0:
             return False
 
@@ -101,7 +124,7 @@ class CommentedCodeScanner(TokenScanner):
                  hard_evidence * HARD_WEIGHT +
                  soft_evidence * SOFT_WEIGHT) / len(code)
 
-        return ratio >= MIN_RATIO
+        return ratio >= MIN_RATIO and ratio <= MAX_RATIO
 
 
 # In the future, we can put more code smell detection classes here
@@ -127,6 +150,7 @@ class FileScanner:
             # For each token, let each scanner look at the token
             for scanner in scanners:
                 scanner.visit(token)
+        scanner.after_last()
 
 
 class DirectoryScanner:
