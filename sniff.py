@@ -101,7 +101,6 @@ class CommentedCodeScanner(TokenScanner):
     def check(self):
         if self.first_token is None:
             return
-        print(self.buffer)
         
         # Check if the comment contains code
         if self.is_code(self.buffer):
