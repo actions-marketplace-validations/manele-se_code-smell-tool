@@ -9,7 +9,7 @@ By using **Manele Code Smell Scanner** in your workflows, your C/C++ code is sca
 Add the following `uses` section to a step in your workflow `.yml` file:
 
 ``` yaml
-      - uses: "manele-se/code-smell-tool@v1.1.4"
+      - uses: "manele-se/code-smell-tool@v1.1.5"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -17,7 +17,7 @@ Add the following `uses` section to a step in your workflow `.yml` file:
 The tool defaults to scanning the contents of your repository's `src` folder, but this can be overridden by adding a `source-location` value:
 
 ``` yaml
-      - uses: "manele-se/code-smell-tool@v1.1.4"
+      - uses: "manele-se/code-smell-tool@v1.1.5"
         with:
           source-location: project/main/code
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: "actions/checkout@v2"
-      - uses: "manele-se/code-smell-tool@v1.1.4"
+      - uses: "manele-se/code-smell-tool@v1.1.5"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           source-location: CODE_DIRECTORY

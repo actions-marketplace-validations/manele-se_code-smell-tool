@@ -173,7 +173,7 @@ class DirectoryScanner:
             for filename in filenames:
                 # We are only interested in C/C++ source files
                 _, file_extension = os.path.splitext(filename.lower())
-                if (file_extension in ['.c', '.cpp', '.cxx', '.cc', '.c++']):
+                if (file_extension in ['.c', '.cpp', '.cxx', '.cc', '.c++', '.h', '.hpp', '.hxx', '.hh']):
                     full_filename = os.path.join(dir, filename)
                     # Scan this file
                     fs.scan_file(full_filename)
