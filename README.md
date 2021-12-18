@@ -8,7 +8,7 @@ By using **Manele Code Smell Scanner** in your workflows, your C/C++ code is sca
 
 Add the following `uses` section to a step in your workflow `.yml` file:
 
-```
+``` yaml
       - uses: "manele-se/code-smell-tool@v1.1.4"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -16,16 +16,16 @@ Add the following `uses` section to a step in your workflow `.yml` file:
 
 The tool defaults to scanning the contents of your repository's `src` folder, but this can be overridden by adding a `source-location` value:
 
-```
+``` yaml
       - uses: "manele-se/code-smell-tool@v1.1.4"
         with:
           source-location: project/main/code
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-If your project does not yet have a GitHub Actions workflow, you can create one by addoing a file called `smell-check.yml` in the `.github` directory, with the following contents:
+If your project does not yet have a GitHub Actions workflow, you can create one by adding a file called `smell-check.yml` in the `.github` directory, with the following contents:
 
-```
+``` yaml
 name: Check code smells
 on: [push, pull_request]
 jobs:
@@ -52,7 +52,7 @@ On Windows, download and install 32 bit LLVM from here: https://github.com/llvm/
 
 Install libclang in python:
 
-```
+``` bash
 pip install libclang
 ```
 
@@ -60,6 +60,6 @@ pip install libclang
 
 Start the `sniff.py` script and pass the root directory of your C/C++ project as a parameter:
 
-```
+``` bash
 python sniff.py my/project/src
 ```
