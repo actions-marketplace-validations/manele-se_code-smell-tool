@@ -106,7 +106,7 @@ class CommentedCodeScanner(TokenScanner):
             return False
         separator_chars = len(re.sub(r'[^/*-]', '', comment))
         separator_ratio = separator_chars * 1.0 / len(comment)
-        return separator_ratio > 0.9
+        return separator_ratio > 0.9 or separator_chars > 15
 
     def after_last(self):
         self.check()
